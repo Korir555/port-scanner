@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port Scanner | Cybersecurity Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #00ff88;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #00ff88;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00ff88;
+        }
+
+        .tagline {
+            color: #00ff44;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .scanner-panel {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #00ff88;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #00ff88;
+            background: rgba(0, 30, 60, 0.8);
+            color: #00ff88;
+            border-radius: 3px;
+            font-family: inherit;
+            font-size: 0.95em;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            border-color: #00ff44;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            background: #00ff88;
+            color: #0a0e27;
+            border: none;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #00ff44;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            background: transparent;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .secondary-btn:hover:not(:disabled) {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.success {
+            background: rgba(0, 255, 68, 0.1);
+            border: 1px solid #00ff44;
+            color: #00ff44;
+        }
+
+        .status.error {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #ff4444;
+            color: #ff4444;
+        }
+
+        .status.info {
+            background: rgba(0, 136, 255, 0.1);
+            border: 1px solid #0088ff;
+            color: #0088ff;
+        }
+
+        .results-panel {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 30px;
+            display: none;
+        }
+
+        .results-panel.show {
+            display: block;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #00ff88;
+        }
+
+        .results-title {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .scan-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: rgba(0, 30, 60, 0.8);
+            border: 1px solid #00ff88;
+            padding: 15px;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00ff44;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #00ff88;
+            opacity: 0.8;
+        }
+
+        .ports-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .ports-table thead {
+            background: rgba(0, 30, 60, 0.8);
+            border-bottom: 2px solid #00ff88;
+        }
+
+        .ports-table th {
+            padding: 12px;
+            text-align: left;
+            color: #00ff44;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .ports-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .ports-table tr:hover {
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .port-number {
+            font-weight: bold;
+            color: #00ff44;
+        }
+
+        .service-badge {
+            background: rgba(0, 255, 136, 0.2);
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+
+        .risk-high {
+            color: #ff6b6b;
+        }
+
+        .risk-medium {
+            color: #ffa94d;
+        }
+
+        .risk-low {
+            color: #00ff88;
+        }
+
+        .cve-list {
+            font-size: 0.85em;
+            color: #ff6b6b;
+            max-width: 300px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #00ff88;
+            border-top: 2px solid #00ff44;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-text {
+            margin-top: 10px;
+            color: #00ff88;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .export-buttons button {
+            flex: 0 1 auto;
+            padding: 8px 15px;
+            font-size: 0.85em;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #00ff88;
+            opacity: 0.7;
+        }
+
+        .help-text {
+            font-size: 0.85em;
+            color: #00ff88;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .scanner-panel,
+            .results-panel {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 PORT SCANNER</h1>
+            <p class="tagline">Network reconnaissance & service enumeration tool</p>
+        </header>
+
+        <div class="scanner-panel">
+            <h2 style="margin-bottom: 20px; color: #00ff44;">SCAN CONFIGURATION</h2>
+            
+            <div class="form-group">
+                <label>Target Host (IP Address)</label>
+                <input 
+                    type="text" 
+                    id="targetHost" 
+                    placeholder="192.168.1.1"
+                    autocomplete="off"
+                >
+                <div class="help-text">Example: 192.168.1.1 or 127.0.0.1</div>
+            </div>
+
+            <div class="input-row">
+                <div class="form-group">
+                    <label>Port Range</label>
+                    <input 
+                        type="text" 
+                        id="portRange" 
+                        placeholder="1-1000"
+                        value="1-1000"
+                    >
+                    <div class="help-text">Format: 1-1000, 22,80,443, or single port</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Timeout (seconds)</label>
+                    <input 
+                        type="number" 
+                        id="timeout" 
+                        min="1" 
+                        max="10" 
+                        value="2"
+                    >
+                    <div class="help-text">Connection timeout per port</div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="scanBtn" onclick="startScan()">START SCAN</button>
+                <button class="secondary-btn" id="clearBtn" onclick="clearResults()">CLEAR RESULTS</button>
+            </div>
+
+            <div class="status" id="status"></div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="progress-text">
+                    Scanning: <span id="progressText">0/0</span> ports
+                </div>
+            </div>
+        </div>
+
+        <div class="results-panel" id="resultsPanel">
+            <div class="results-header">
+                <div class="results-title">SCAN RESULTS</div>
+                <div style="font-size: 0.9em; color: #00ff88;">
+                    Target: <span id="resultHost" style="color: #00ff44;"></span>
+                </div>
+            </div>
+
+            <div class="scan-stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="statTotal">0</div>
+                    <div class="stat-label">Ports Scanned</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statOpen">0</div>
+                    <div class="stat-label">Open Ports</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statClosed">0</div>
+                    <div class="stat-label">Closed Ports</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statFiltered">0</div>
+                    <div class="stat-label">Filtered Ports</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statVulns">0</div>
+                    <div class="stat-label">Known CVEs</div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 15px; color: #00ff44; margin-top: 30px;">OPEN PORTS & SERVICES</h3>
+            <div id="portsContainer">
+                <div class="no-results">No results yet. Run a scan to begin.</div>
+            </div>
+
+            <div class="export-buttons">
+                <button onclick="exportJSON()" class="secondary-btn">EXPORT JSON</button>
+                <button onclick="exportCSV()" class="secondary-btn">EXPORT CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scanData = null;
+
+        async function startScan() {
+            const host = document.getElementById('targetHost').value.trim();
+            const ports = document.getElementById('portRange').value.trim();
+            const statusEl = document.getElementById('status');
+
+            if (!host) {
+                showStatus('Please enter a target IP address', 'error');
+                return;
+            }
+
+            showStatus('', '');
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('scanBtn').disabled = true;
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/scan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        host: host,
+                        ports: ports
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Scan failed');
+                }
+
+                scanData = await response.json();
+                displayResults();
+                showStatus('Scan completed successfully!', 'success');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('scanBtn').disabled = false;
+            }
+        }
+
+        function displayResults() {
+            if (!scanData) return;
+
+            document.getElementById('resultsPanel').classList.add('show');
+            document.getElementById('resultHost').textContent = scanData.host;
+            document.getElementById('statTotal').textContent = scanData.ports_scanned;
+            document.getElementById('statOpen').textContent = scanData.open_ports.length;
+            document.getElementById('statClosed').textContent = scanData.closed_ports.length;
+            document.getElementById('statFiltered').textContent = scanData.filtered_ports.length;
+            document.getElementById('statVulns').textContent = scanData.vulnerabilities.length;
+
+            if (scanData.open_ports.length === 0) {
+                document.getElementById('portsContainer').innerHTML = 
+                    '<div class="no-results">No open ports found on target.</div>';
+                return;
+            }
+
+            let html = `
+                <table class="ports-table">
+                    <thead>
+                        <tr>
+                            <th>Port</th>
+                            <th>Service</th>
+                            <th>Version/Banner</th>
+                            <th>Known CVEs</th>
+                            <th>Risk</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            scanData.open_ports.forEach(port => {
+                const cveList = port.cves && port.cves.length > 0 
+                    ? port.cves.join(', ') 
+                    : 'None known';
+                
+                html += `
+                    <tr>
+                        <td class="port-number">${port.port}</td>
+                        <td><span class="service-badge">${port.service || 'Unknown'}</span></td>
+                        <td>${port.version || '—'}</td>
+                        <td class="cve-list">${cveList}</td>
+                        <td class="risk-${port.risk.toLowerCase()}">${port.risk}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('portsContainer').innerHTML = html;
+        }
+
+        function showStatus(message, type) {
+            const el = document.getElementById('status');
+            el.textContent = message;
+            el.className = type ? `status show ${type}` : 'status';
+        }
+
+        function clearResults() {
+            document.getElementById('targetHost').value = '';
+            document.getElementById('portRange').value = '1-1000';
+            document.getElementById('resultsPanel').classList.remove('show');
+            document.getElementById('status').className = 'status';
+            scanData = null;
+        }
+
+        function exportJSON() {
+            if (!scanData) return;
+            const data = JSON.stringify(scanData, null, 2);
+            downloadFile(data, `port-scan-${scanData.host}-${Date.now()}.json`, 'application/json');
+        }
+
+        function exportCSV() {
+            if (!scanData || !scanData.open_ports.length) return;
+            
+            let csv = 'Port,Service,Version,CVEs,Risk\n';
+            scanData.open_ports.forEach(port => {
+                const cves = (port.cves || []).join(';');
+                csv += `${port.port},"${port.service || 'Unknown'}","${port.version || '—'}","${cves}","${port.risk}"\n`;
+            });
+
+            downloadFile(csv, `port-scan-${scanData.host}-${Date.now()}.csv`, 'text/csv');
+        }
+
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        // Demo scan for testing without backend
+        function runDemoScan() {
+            scanData = {
+                host: '192.168.1.100',
+                ports_scanned: 50,
+                open_ports: [
+                    { port: 22, service: 'SSH', version: 'OpenSSH 7.4', cves: ['CVE-2021-28041'], risk: 'High' },
+                    { port: 80, service: 'HTTP', version: 'Apache 2.4.6', cves: ['CVE-2021-44228'], risk: 'High' },
+                    { port: 443, service: 'HTTPS', version: 'Apache 2.4.6', cves: [], risk: 'Medium' },
+                    { port: 3306, service: 'MySQL', version: 'MySQL 5.7.30', cves: ['CVE-2021-2154'], risk: 'High' },
+                ],
+                closed_ports: [{ port: 8080 }],
+                filtered_ports: [{ port: 9000 }],
+                vulnerabilities: [
+                    { port: 22, service: 'SSH', cves: ['CVE-2021-28041'] },
+                    { port: 80, service: 'HTTP', cves: ['CVE-2021-44228'] }
+                ]
+            };
+            displayResults();
+            showStatus('Demo scan loaded (not connected to backend)', 'info');
+            document.getElementById('resultHost').textContent = '192.168.1.100';
+        }
+    </script>
+</body>
+</html>
