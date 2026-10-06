@@ -145,16 +145,16 @@ curl http://127.0.0.1:5000/api/cve/SSH
 
 ### Intended Use
 This tool is designed for:
-- ✅ Security testing on your own systems
-- ✅ Authorized penetration testing engagements
-- ✅ Network administration and asset discovery
-- ✅ Vulnerability assessment with proper authorization
+-  Security testing on your own systems
+-  Authorized penetration testing engagements
+-  Network administration and asset discovery
+-  Vulnerability assessment with proper authorization
 
 ### Not For
-- ❌ Unauthorized network scanning
-- ❌ Testing systems you don't own/operate
-- ❌ Malicious reconnaissance
-- ❌ Denial of service attacks
+-  Unauthorized network scanning
+-  Testing systems you don't own/operate
+-  Malicious reconnaissance
+-  Denial of service attacks
 
 ### Responsible Disclosure
 Always obtain written permission before scanning any network or system you don't own. Unauthorized port scanning may violate computer fraud and abuse laws in your jurisdiction.
